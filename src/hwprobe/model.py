@@ -40,6 +40,7 @@ class HandlerReport:
     devices: list[Device] = field(default_factory=list)
     facts: dict[str, Any] = field(default_factory=dict)
     evidence: list[str] = field(default_factory=list)
+    provenance: list[dict[str, Any]] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     duration_ms: float = 0.0
     status: str = HandlerStatus.COMPLETE.value

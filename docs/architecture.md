@@ -52,9 +52,15 @@ The JSON document is self-describing and forward-compatible:
 
 Consumers must tolerate new keys and unknown handler names.
 
-Schema 1.1 is described by `schema/inventory.schema.json` and reinforced by
+Schema 1.2 is described by `schema/inventory.schema.json` and reinforced by
 runtime invariants such as unique stable device IDs. Output redaction happens
 after validation and the redacted result is validated again.
+
+Every audited read, binary capture, symlink resolution, and directory listing
+also emits a provenance observation with outcome, source, media type, byte count,
+and SHA-256 when content was obtained. Raw bytes are retained only when the
+operator explicitly enables the private content-addressed evidence store.
+See [provenance.md](provenance.md).
 
 ## Roadmap
 

@@ -31,6 +31,9 @@ PYTHONPATH=src python3 -m hwprobe scan --pretty
 PYTHONPATH=src python3 -m hwprobe scan --output inventory.json
 PYTHONPATH=src python3 -m hwprobe scan --handler linux-cpu --handler linux-pci
 PYTHONPATH=src python3 -m hwprobe scan --redaction none --output private-inventory.json
+PYTHONPATH=src python3 -m hwprobe scan --evidence-dir private-evidence --output inventory.json
+PYTHONPATH=src python3 -m hwprobe verify-evidence private-evidence/runs/RUN_ID.json --evidence-dir private-evidence
+PYTHONPATH=src python3 -m hwprobe qualify private-evidence/runs/RUN_ID.json --evidence-dir private-evidence
 PYTHONPATH=src python3 -m hwprobe handlers
 PYTHONPATH=src python3 -m hwprobe validate inventory.json
 ```
@@ -40,6 +43,11 @@ current code never writes to a device, sysfs, procfs, or firmware interface.
 Handlers run in isolated worker processes with deadlines. Identifiers such as
 hostnames, MAC addresses, UUIDs, and serial numbers are redacted by default;
 `--redaction none` is an explicit choice for a private raw report.
+
+`--evidence-dir` is also explicit because it stores the exact bytes observed by
+the handlers, including identifiers. Objects are deduplicated by SHA-256 and a
+private unredacted run manifest is written with owner-only permissions. Keep
+that directory out of source control. See the [provenance contract](docs/provenance.md).
 
 ## Design
 
@@ -64,3 +72,7 @@ Project planning and operating documents:
   reverse engineering, radio, export, and disclosure gates.
 - [Risk and blast-radius policy](docs/risk-and-blast-radius.md): containment,
   recovery, and experiment approval requirements.
+- [Provenance contract](docs/provenance.md): raw evidence layout, verification,
+  privacy, and future offline decoder requirements.
+- [Platform validation](docs/platform-validation.md): repeatable qualification
+  procedure and the five-physical-platform M1 matrix.

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from hwprobe.handlers.base import Handler
-from hwprobe.io import link_name
+from hwprobe.io import iter_paths, link_name
 from hwprobe.model import Device, HandlerReport, ProbeLevel
 
 
@@ -12,23 +12,24 @@ class BusTopologyHandler(Handler):
 
     name = "linux-bus-topology"
     category = "bus-topology"
+    root = Path("/sys/bus")
     default_probe_level = ProbeLevel.TOPOLOGY
     supported_probe_levels = (ProbeLevel.TOPOLOGY,)
 
     def probe(self) -> HandlerReport:
         report = HandlerReport(self.name, self.category, ProbeLevel.TOPOLOGY)
-        root = Path("/sys/bus")
+        root = self.root
         if not root.is_dir():
             report.warnings.append("Linux bus topology is unavailable")
             return report
         report.evidence.append(str(root))
         counts: dict[str, int] = {}
-        for bus in sorted(root.iterdir()):
+        for bus in iter_paths(root):
             devices = bus / "devices"
             if not devices.is_dir():
                 continue
             try:
-                entries = sorted(devices.iterdir())
+                entries = iter_paths(devices)
             except PermissionError:
                 report.warnings.append(f"cannot enumerate bus {bus.name}")
                 continue

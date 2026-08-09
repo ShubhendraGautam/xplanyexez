@@ -4,17 +4,19 @@ import os
 from pathlib import Path
 
 from hwprobe.handlers.base import Handler
-from hwprobe.io import read_fields, read_text
+from hwprobe.io import iter_paths, read_fields, read_text
 from hwprobe.model import Device, HandlerReport, ProbeLevel
 
 
 class CpuHandler(Handler):
     name = "linux-cpu"
     category = "cpu"
+    cpuinfo_path = Path("/proc/cpuinfo")
+    sys_cpu_root = Path("/sys/devices/system/cpu")
 
     def probe(self) -> HandlerReport:
         report = HandlerReport(self.name, self.category, ProbeLevel.PASSIVE)
-        cpuinfo_path = Path("/proc/cpuinfo")
+        cpuinfo_path = self.cpuinfo_path
         raw = read_text(cpuinfo_path)
         if raw is None:
             report.warnings.append("could not read /proc/cpuinfo")
@@ -29,9 +31,11 @@ class CpuHandler(Handler):
                     record[key.strip()] = value.strip()
             if record:
                 records.append(record)
+        if not records:
+            report.warnings.append("/proc/cpuinfo contained no decodable processor records")
         report.facts["logical_cpu_count"] = len(records) or os.cpu_count()
         report.facts["kernel_online_cpu_count"] = os.cpu_count()
-        sys_cpu = Path("/sys/devices/system/cpu")
+        sys_cpu = self.sys_cpu_root
         fields, evidence = read_fields(sys_cpu, ("online", "offline", "possible", "present", "isolated"))
         report.facts.update(fields)
         report.evidence.extend(evidence)
@@ -49,7 +53,7 @@ class CpuHandler(Handler):
         vulnerabilities = sys_cpu / "vulnerabilities"
         vulnerability_facts: dict[str, str] = {}
         if vulnerabilities.is_dir():
-            for path in sorted(vulnerabilities.iterdir()):
+            for path in iter_paths(vulnerabilities):
                 value = read_text(path)
                 if value is not None:
                     vulnerability_facts[path.name] = value

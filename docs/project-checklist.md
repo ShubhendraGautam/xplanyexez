@@ -84,7 +84,8 @@ systematically test bounded hypotheses, and preserve every unknown.
 - [ ] Handler dependency and explicit ordering controls. **F0**
 - [x] Per-handler deadlines, worker termination, and stuck-I/O containment.
   **F0–F1**
-- [ ] Global scan deadline and cancellation. **F0–F1**
+- [x] Global scan deadline spanning all isolated handlers. **F0–F1**
+- [ ] Cooperative operator cancellation with a sealed partial manifest. **F0–F1**
 - [ ] Resource arbitration for buses, BARs, controllers, GPIOs, and exclusive
   device access. **F1–F2**
 - [ ] Hot-plug/hot-remove event tracking and snapshot consistency detection.
@@ -105,7 +106,8 @@ systematically test bounded hypotheses, and preserve every unknown.
 
 - [x] Evidence source paths for current sysfs/procfs facts. **F0**
 - [x] Firmware-table hashes with bounded reads. **F0**
-- [ ] Content-addressed raw evidence store with deduplication. **F0**
+- [x] Opt-in content-addressed raw evidence store with SHA-256 deduplication and
+  owner-only private manifests. **F0**
 - [ ] Cryptographic run manifest and optional operator signature. **F0–F1**
 - [ ] Chain-of-custody mode for forensic-quality collection. **F1**
 - [ ] Source timestamps, monotonic event timing, clock-quality metadata, and
@@ -114,7 +116,8 @@ systematically test bounded hypotheses, and preserve every unknown.
 - [ ] Raw-to-decoded provenance graph and versioned decoders. **F0**
 - [x] Versioned JSON Schema plus runtime invariant validation. **F0**
 - [ ] CBOR, SQLite, text summary, topology graph, and HTML report. **F0**
-- [ ] Binary-safe evidence capture with size budgets and secret scanning. **F0**
+- [x] Binary-safe evidence capture with enforced per-object size budgets. **F0**
+- [ ] Semantic secret scanning before evidence export. **F0**
 - [x] Configurable identifier and strict redaction/pseudonymization profiles.
   **F0**
 - [ ] Compare observed behavior against datasheet/standard claims. **F0–F3**
@@ -126,7 +129,10 @@ systematically test bounded hypotheses, and preserve every unknown.
 ### Quality and security
 
 - [x] Unit test for handler isolation and evidence normalization. **F0**
-- [ ] Unit tests for every decoder and transport boundary. **F0**
+- [x] Fixture-based happy-path and unavailable-root tests for every current
+  passive handler. **F0**
+- [ ] Exhaustive malformed-input tests for every decoder and transport boundary.
+  **F0**
 - [ ] Golden captures from x86, Arm, RISC-V, physical Linux, WSL, VMs, servers,
   laptops, and embedded boards. **F0–F2**
 - [ ] Hardware-in-the-loop tests on sacrificial devices. **F2**
@@ -499,8 +505,14 @@ accounts, networks, data, radio bands, or users in scope.
 - [x] Best-effort coverage ledger with successful, absent, inaccessible, failed,
   and size-limited read counts.
 - [x] Isolated per-handler timeouts and failure containment.
-- [ ] Content-addressed provenance store and complete passive handler test suite.
-- [ ] Validate on at least five materially different physical platforms.
+- [x] Content-addressed provenance store and private manifest verification.
+- [x] Fixture coverage for every current passive handler plus inaccessible-root,
+  timeout, malformed-handler, policy, redaction, and schema-invariant tests.
+- [ ] Exhaustive malformed-field, permission-race, and hot-unplug test matrix.
+- [ ] Validate on at least five materially different physical platforms using
+  the procedure and attestation matrix in
+  [platform-validation.md](platform-validation.md). The current WSL2 development
+  qualification passes software checks but does not count as a physical target.
 
 ### M2 — native read-only probing
 

@@ -91,6 +91,16 @@ class ScannerTests(unittest.TestCase):
         report = scan([SlowHandler], policy=policy, host_id="test-host")["reports"][0]
         self.assertEqual(report["status"], "timed_out")
 
+    def test_global_scan_deadline_covers_all_handlers(self) -> None:
+        policy = ScanPolicy(
+            handler_timeout_seconds=1,
+            scan_timeout_seconds=0.02,
+            redaction=RedactionMode.NONE,
+        )
+        reports = scan([SlowHandler, GoodHandler], policy=policy, host_id="test-host")["reports"]
+        self.assertEqual([report["status"] for report in reports], ["timed_out", "timed_out"])
+        self.assertIn("global scan deadline", reports[1]["warnings"][0])
+
     def test_policy_blocks_deeper_handler_before_execution(self) -> None:
         policy = ScanPolicy(maximum_probe_level=ProbeLevel.PASSIVE, redaction=RedactionMode.NONE)
         report = scan([ActiveHandler], policy=policy, host_id="test-host")["reports"][0]
@@ -108,6 +118,12 @@ class ScannerTests(unittest.TestCase):
         document = scan([GoodHandler], host_id="test-host")
         duplicate = dict(document["reports"][0]["devices"][0])
         document["reports"][0]["devices"].append(duplicate)
+        with self.assertRaises(SchemaError):
+            validate_inventory(document)
+
+    def test_inconsistent_coverage_is_rejected(self) -> None:
+        document = scan([GoodHandler], host_id="test-host")
+        document["reports"][0]["coverage"]["device_count"] = 99
         with self.assertRaises(SchemaError):
             validate_inventory(document)
 

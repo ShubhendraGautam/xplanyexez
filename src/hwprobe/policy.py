@@ -16,17 +16,21 @@ class RedactionMode(str, Enum):
 class ScanPolicy:
     maximum_probe_level: ProbeLevel = ProbeLevel.PASSIVE
     handler_timeout_seconds: float = 10.0
+    scan_timeout_seconds: float = 120.0
     redaction: RedactionMode = RedactionMode.IDENTIFIERS
     isolate_handlers: bool = True
 
     def __post_init__(self) -> None:
         if self.handler_timeout_seconds <= 0:
             raise ValueError("handler timeout must be greater than zero")
+        if self.scan_timeout_seconds <= 0:
+            raise ValueError("scan timeout must be greater than zero")
 
     def to_dict(self) -> dict[str, object]:
         return {
             "maximum_probe_level": int(self.maximum_probe_level),
             "handler_timeout_seconds": self.handler_timeout_seconds,
+            "scan_timeout_seconds": self.scan_timeout_seconds,
             "redaction": self.redaction.value,
             "isolate_handlers": self.isolate_handlers,
         }

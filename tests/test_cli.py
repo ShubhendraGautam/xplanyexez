@@ -10,6 +10,10 @@ class CliTests(unittest.TestCase):
         selected = select_handlers(["linux-usb", "linux-cpu"], [])
         self.assertEqual([handler.name for handler in selected], ["linux-usb", "linux-cpu"])
 
+    def test_duplicate_handler_include_is_deduplicated(self) -> None:
+        selected = select_handlers(["linux-usb", "linux-usb"], [])
+        self.assertEqual([handler.name for handler in selected], ["linux-usb"])
+
     def test_handler_exclusion(self) -> None:
         selected = select_handlers([], ["linux-usb"])
         self.assertNotIn("linux-usb", [handler.name for handler in selected])
