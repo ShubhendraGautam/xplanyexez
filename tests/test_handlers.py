@@ -172,6 +172,21 @@ class PassiveHandlerFixtureTests(unittest.TestCase):
         self.assertTrue(any("no decodable" in warning for warning in cpu_report.warnings))
         self.assertTrue(any("no decodable" in warning for warning in memory_report.warnings))
 
+    def test_cpu_invalid_and_duplicate_ids_cannot_escape_topology_root(self) -> None:
+        cpuinfo = write(
+            self.root,
+            "cpuinfo-invalid-ids",
+            "processor : ../../outside\nmodel name : First\n\n"
+            "processor : ../../outside\nmodel name : Second\n",
+        )
+        sys_cpu = self.root / "sys/cpu"
+        sys_cpu.mkdir(parents=True)
+        handler_type = fixture_handler(CpuHandler, cpuinfo_path=cpuinfo, sys_cpu_root=sys_cpu)
+        report = handler_type().probe()
+        self.assertEqual([device.id for device in report.devices], ["cpu0", "cpu1"])
+        self.assertTrue(all(Path(device.path).is_relative_to(sys_cpu) for device in report.devices))
+        self.assertEqual(len(report.warnings), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

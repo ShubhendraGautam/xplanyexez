@@ -508,7 +508,9 @@ accounts, networks, data, radio bands, or users in scope.
 - [x] Content-addressed provenance store and private manifest verification.
 - [x] Fixture coverage for every current passive handler plus inaccessible-root,
   timeout, malformed-handler, policy, redaction, and schema-invariant tests.
-- [ ] Exhaustive malformed-field, permission-race, and hot-unplug test matrix.
+- [x] Current passive transport malformed-field, permission-race, I/O-error,
+  size-limit, broken-link, and hot-unplug test matrix, including CPU identity
+  traversal/duplication containment.
 - [ ] Validate on at least five materially different physical platforms using
   the procedure and attestation matrix in
   [platform-validation.md](platform-validation.md). The current WSL2 development

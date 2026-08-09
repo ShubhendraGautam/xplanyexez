@@ -39,8 +39,16 @@ class CpuHandler(Handler):
         fields, evidence = read_fields(sys_cpu, ("online", "offline", "possible", "present", "isolated"))
         report.facts.update(fields)
         report.evidence.extend(evidence)
+        used_cpu_ids: set[str] = set()
         for index, record in enumerate(records):
-            cpu_id = record.get("processor", str(index))
+            reported_cpu_id = record.get("processor", str(index))
+            cpu_id = reported_cpu_id
+            if not cpu_id.isdecimal() or cpu_id in used_cpu_ids:
+                cpu_id = str(index)
+                report.warnings.append(
+                    f"invalid or duplicate processor id {reported_cpu_id!r}; using record index {cpu_id}"
+                )
+            used_cpu_ids.add(cpu_id)
             topology, paths = read_fields(
                 sys_cpu / f"cpu{cpu_id}" / "topology",
                 ("physical_package_id", "die_id", "core_id", "cluster_id", "core_cpus_list", "thread_siblings_list"),

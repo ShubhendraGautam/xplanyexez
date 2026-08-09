@@ -63,6 +63,56 @@ class IoAuditTests(unittest.TestCase):
         self.assertEqual(audit.successful_reads, 1)
         self.assertEqual(audit.observations[0].operation, "read_link")
 
+    def test_read_race_after_open_is_contained(self) -> None:
+        begin_io_audit()
+        with (
+            patch("hwprobe.io.os.open", return_value=123),
+            patch("hwprobe.io.os.read", side_effect=FileNotFoundError),
+            patch("hwprobe.io.os.close"),
+        ):
+            self.assertIsNone(read_text(Path("/vanished")))
+        audit = finish_io_audit()
+        self.assertEqual(audit.not_found, 1)
+
+    def test_directory_hot_unplug_during_iteration_is_contained(self) -> None:
+        def vanishing_entries():
+            yield Path("/bus/device0")
+            raise FileNotFoundError
+
+        begin_io_audit()
+        with patch.object(Path, "iterdir", return_value=vanishing_entries()):
+            self.assertEqual(iter_paths(Path("/bus")), [])
+        audit = finish_io_audit()
+        self.assertEqual(audit.not_found, 1)
+
+    def test_symlink_failure_modes_are_distinct(self) -> None:
+        cases = (
+            (FileNotFoundError(), "not_found"),
+            (PermissionError(), "permission_denied"),
+            (OSError(), "io_errors"),
+        )
+        for exception, expected in cases:
+            with self.subTest(status=expected):
+                begin_io_audit()
+                with patch("hwprobe.io.os.readlink", side_effect=exception):
+                    self.assertIsNone(link_name(Path("/link")))
+                audit = finish_io_audit()
+                self.assertEqual(getattr(audit, expected), 1)
+
+    def test_binary_failure_modes_are_distinct(self) -> None:
+        cases = (
+            (FileNotFoundError(), "not_found"),
+            (PermissionError(), "permission_denied"),
+            (OSError(), "io_errors"),
+        )
+        for exception, expected in cases:
+            with self.subTest(status=expected):
+                begin_io_audit()
+                with patch.object(Path, "stat", side_effect=exception):
+                    self.assertIsNone(describe_binary(Path("/table")))
+                audit = finish_io_audit()
+                self.assertEqual(getattr(audit, expected), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
