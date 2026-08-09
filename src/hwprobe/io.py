@@ -72,11 +72,13 @@ def _elapsed_us(started_ns: int) -> int:
 
 
 def _record_failure(
-    path: Path,
+    path: Path | str,
     operation: str,
     status: str,
     started_ns: int,
     detail: str | None = None,
+    *,
+    transport: str = "linux-vfs",
 ) -> None:
     if _audit is None:
         return
@@ -86,7 +88,7 @@ def _record_failure(
         EvidenceObservation(
             sequence=len(_audit.observations),
             source=str(path),
-            transport="linux-vfs",
+            transport=transport,
             operation=operation,
             status=status,
             duration_us=_elapsed_us(started_ns),
@@ -95,7 +97,15 @@ def _record_failure(
     )
 
 
-def _record_success(path: Path, operation: str, data: bytes, media_type: str, started_ns: int) -> None:
+def _record_success(
+    path: Path | str,
+    operation: str,
+    data: bytes,
+    media_type: str,
+    started_ns: int,
+    *,
+    transport: str = "linux-vfs",
+) -> None:
     if _audit is None:
         return
     digest = hashlib.sha256(data).hexdigest()
@@ -106,7 +116,7 @@ def _record_success(path: Path, operation: str, data: bytes, media_type: str, st
         EvidenceObservation(
             sequence=len(_audit.observations),
             source=str(path),
-            transport="linux-vfs",
+            transport=transport,
             operation=operation,
             status="success",
             duration_us=_elapsed_us(started_ns),
@@ -114,6 +124,45 @@ def _record_success(path: Path, operation: str, data: bytes, media_type: str, st
             size=len(data),
             media_type=media_type,
         )
+    )
+
+
+def record_transport_success(
+    source: str,
+    *,
+    transport: str,
+    operation: str,
+    data: bytes,
+    media_type: str,
+    started_ns: int,
+) -> None:
+    """Audit one non-filesystem hardware response and retain its raw bytes."""
+    _record_success(
+        source,
+        operation,
+        data,
+        media_type,
+        started_ns,
+        transport=transport,
+    )
+
+
+def record_transport_failure(
+    source: str,
+    *,
+    transport: str,
+    operation: str,
+    started_ns: int,
+    detail: str,
+) -> None:
+    """Audit a failed non-filesystem hardware operation."""
+    _record_failure(
+        source,
+        operation,
+        "io_errors",
+        started_ns,
+        detail,
+        transport=transport,
     )
 
 

@@ -49,7 +49,12 @@ class PassiveHandlerFixtureTests(unittest.TestCase):
         write(sys_cpu, "cpu0/topology/core_id", "0\n")
         write(sys_cpu, "cpu1/topology/core_id", "0\n")
         write(sys_cpu, "vulnerabilities/example", "Mitigation: fixture\n")
-        handler_type = fixture_handler(CpuHandler, cpuinfo_path=cpuinfo, sys_cpu_root=sys_cpu)
+        handler_type = fixture_handler(
+            CpuHandler,
+            cpuinfo_path=cpuinfo,
+            sys_cpu_root=sys_cpu,
+            cpuid_transport_type=None,
+        )
         report = handler_type().probe()
         self.assertEqual(len(report.devices), 2)
         self.assertEqual(report.devices[0].name, "Fixture CPU")
@@ -145,7 +150,12 @@ class PassiveHandlerFixtureTests(unittest.TestCase):
     def test_all_handlers_report_unavailable_primary_roots(self) -> None:
         missing = self.root / "missing"
         handler_types = (
-            fixture_handler(CpuHandler, cpuinfo_path=missing, sys_cpu_root=missing),
+            fixture_handler(
+                CpuHandler,
+                cpuinfo_path=missing,
+                sys_cpu_root=missing,
+                cpuid_transport_type=None,
+            ),
             fixture_handler(MemoryHandler, meminfo_path=missing, root=missing),
             fixture_handler(PciHandler, root=missing),
             fixture_handler(UsbHandler, root=missing),
@@ -165,7 +175,12 @@ class PassiveHandlerFixtureTests(unittest.TestCase):
         malformed = write(self.root, "malformed", "not a key value record\n\ufffd\n")
         empty_root = self.root / "empty"
         empty_root.mkdir()
-        cpu_type = fixture_handler(CpuHandler, cpuinfo_path=malformed, sys_cpu_root=empty_root)
+        cpu_type = fixture_handler(
+            CpuHandler,
+            cpuinfo_path=malformed,
+            sys_cpu_root=empty_root,
+            cpuid_transport_type=None,
+        )
         memory_type = fixture_handler(MemoryHandler, meminfo_path=malformed, root=empty_root)
         cpu_report = cpu_type().probe()
         memory_report = memory_type().probe()
@@ -181,7 +196,12 @@ class PassiveHandlerFixtureTests(unittest.TestCase):
         )
         sys_cpu = self.root / "sys/cpu"
         sys_cpu.mkdir(parents=True)
-        handler_type = fixture_handler(CpuHandler, cpuinfo_path=cpuinfo, sys_cpu_root=sys_cpu)
+        handler_type = fixture_handler(
+            CpuHandler,
+            cpuinfo_path=cpuinfo,
+            sys_cpu_root=sys_cpu,
+            cpuid_transport_type=None,
+        )
         report = handler_type().probe()
         self.assertEqual([device.id for device in report.devices], ["cpu0", "cpu1"])
         self.assertTrue(all(Path(device.path).is_relative_to(sys_cpu) for device in report.devices))

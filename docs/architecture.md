@@ -79,12 +79,12 @@ See [provenance.md](provenance.md).
   device-tree raw-table capture.
 - SPD EEPROM reads only where the controller and platform permit safe access.
 
-The recommended first native slice is **x86 CPUID**. It is unprivileged, has no
-device-state side effects, and immediately tests the transport/decoder split.
-The handler should retain every queried `(leaf, subleaf, eax, ebx, ecx, edx)`
-tuple and layer named feature claims on top. Vendor-defined leaf ranges must be
-enumerated separately; “reserved” inputs need a bounded experiment manifest
-rather than an open-ended loop.
+The first native slice, **x86 CPUID**, executes in user space with per-logical-CPU
+affinity. It retains every queried `(leaf, subleaf, eax, ebx, ecx, edx)` tuple,
+audits the raw response bytes, and layers named feature claims on top. Documented
+basic, extended, structured, and hypervisor namespaces are bounded independently;
+reserved-input exploration remains gated on an experiment manifest rather than
+an open-ended loop.
 
 ### Milestone 3: controlled active experiments
 

@@ -4,10 +4,12 @@ Xplanyexez is a hardware discovery and experimentation framework. Its purpose is
 not merely to label devices, but to build an evidence-backed description of what
 the machine can actually do and provide a controlled path toward deeper probes.
 
-The first milestone is Linux-first and read-only. It inventories CPU, memory,
-PCI, USB, block, network, firmware, graphics, and the remaining Linux bus
-topology without external dependencies. Later milestones can add privileged
-helpers and bare-metal probes without changing the inventory format.
+The Linux-first read-only scanner inventories CPU, memory, PCI, USB, block,
+network, firmware, graphics, and the remaining Linux bus topology without
+external dependencies. On x86-64 it also executes CPUID on every accessible
+logical processor, retaining the bounded raw leaf/subleaf register responses
+before decoding them. Later milestones can add privileged helpers and bare-metal
+probes without changing the inventory format.
 
 ## Probe levels
 
@@ -20,7 +22,7 @@ helpers and bare-metal probes without changing the inventory format.
 | 4 | Potentially destructive or irreversible experiments | separate tooling |
 
 The key rule is evidence before interpretation. A reported claim includes its
-source path, and unknown values remain unknown rather than being guessed.
+source operation, and unknown values remain unknown rather than being guessed.
 
 ## Run it
 

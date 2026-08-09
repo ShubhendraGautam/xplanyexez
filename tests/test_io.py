@@ -2,15 +2,39 @@ from __future__ import annotations
 
 import inspect
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 import hwprobe.io
-from hwprobe.io import begin_io_audit, describe_binary, finish_io_audit, iter_paths, link_name, read_text
+from hwprobe.io import (
+    begin_io_audit,
+    describe_binary,
+    finish_io_audit,
+    iter_paths,
+    link_name,
+    read_text,
+    record_transport_success,
+)
 
 
 class IoAuditTests(unittest.TestCase):
+    def test_native_transport_response_is_audited_as_raw_evidence(self) -> None:
+        begin_io_audit()
+        record_transport_success(
+            "cpuid://cpu/0/leaf/00000000/subleaf/00000000",
+            transport="x86-cpuid",
+            operation="execute_cpuid",
+            data=b"raw-registers",
+            media_type="application/vnd.xplanyexez.cpuid-registers",
+            started_ns=time.monotonic_ns(),
+        )
+        audit = finish_io_audit()
+        self.assertEqual(audit.successful_reads, 1)
+        self.assertEqual(audit.observations[0].transport, "x86-cpuid")
+        self.assertIn(b"raw-registers", audit.artifacts.values())
+
     def test_success_and_missing_reads_are_distinct(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             present = Path(directory) / "present"

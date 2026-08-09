@@ -159,7 +159,7 @@ captures are retained before convenience decoders are applied.
 
 - [x] Linux logical CPU inventory, `/proc/cpuinfo`, topology, and vulnerability
   exposure. **F0**
-- [ ] x86 standard, extended, hypervisor, and vendor CPUID leaves per logical
+- [x] x86 standard, extended, hypervisor, and vendor CPUID leaves per logical
   processor; retain all leaf/subleaf register tuples. **F0**
 - [ ] x86 cache/TLB/topology, XSAVE, performance-monitoring, RDT, SGX/TDX/SEV
   advertisement, and frequency/thermal capability decoding. **F0–F1**
@@ -518,7 +518,7 @@ accounts, networks, data, radio bands, or users in scope.
 
 ### M2 — native read-only probing
 
-- [ ] CPUID transport/decoder and per-core capture.
+- [x] CPUID transport/decoder and per-core capture.
 - [ ] PCIe configuration transport/decoder.
 - [ ] SMBIOS, ACPI, device tree, storage identify/log, USB descriptors, EDID,
   audio/input/sensor, and firmware specialists.
