@@ -6,17 +6,26 @@ same board/firmware family does not satisfy that gate.
 
 ## Qualification procedure
 
-On each owned and authorized physical machine:
+Build the standalone scanner once; it contains only project code and requires
+only Python 3.10 or newer on the target:
+
+```sh
+python3 tools/build_zipapp.py --output dist/hwprobe.pyz
+sha256sum dist/hwprobe.pyz
+```
+
+Copy `hwprobe.pyz` to each owned and authorized physical machine along with its
+SHA-256. Verify the digest, then run:
 
 ```sh
 evidence_dir="private-evidence-$(date +%Y%m%d-%H%M%S)"
-PYTHONPATH=src python3 -m hwprobe scan \
+./hwprobe.pyz scan \
   --redaction none \
   --evidence-dir "$evidence_dir" \
   --output "$evidence_dir/inventory.json"
 
 manifest=$(find "$evidence_dir/runs" -type f -name '*.json' -print -quit)
-PYTHONPATH=src python3 -m hwprobe qualify \
+./hwprobe.pyz qualify \
   "$manifest" --evidence-dir "$evidence_dir"
 ```
 

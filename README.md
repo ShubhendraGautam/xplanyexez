@@ -49,6 +49,13 @@ the handlers, including identifiers. Objects are deduplicated by SHA-256 and a
 private unredacted run manifest is written with owner-only permissions. Keep
 that directory out of source control. See the [provenance contract](docs/provenance.md).
 
+For physical test machines, build the dependency-free single-file scanner:
+
+```sh
+python3 tools/build_zipapp.py --output dist/hwprobe.pyz
+./dist/hwprobe.pyz handlers
+```
+
 ## Design
 
 Each hardware category is owned by a handler. Handlers emit a common record:
