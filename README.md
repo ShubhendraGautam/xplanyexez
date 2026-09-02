@@ -85,3 +85,17 @@ Project planning and operating documents:
   privacy, and future offline decoder requirements.
 - [Platform validation](docs/platform-validation.md): repeatable qualification
   procedure and the five-physical-platform M1 matrix.
+
+## Multi-agent development
+
+When more than one coding agent works this repository at the same time,
+coordinate through [gator-tools](https://github.com/ShubhendraGautam/gator-tools),
+vendored here as a submodule:
+
+```sh
+node gator-tools/skills/multi-agent-coordination/scripts/coord.mjs
+```
+
+Run `git submodule update --init` if that directory is empty. Coordination state
+lives in this repository's `.git/`, never in the submodule, and nothing the
+scanner needs at runtime depends on it — a clone without submodules still works.
