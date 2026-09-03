@@ -26,6 +26,9 @@ Before probing anything beyond the operator's personally owned, isolated device:
   under an approved data-handling plan.
 - [ ] Re-authorize any material scope change. Discovery of a reachable target is
   not permission to probe it.
+- [ ] Treat the P2 owner signature as a self-attestation and execution interlock,
+  not independent proof of identity, title, qualifications, consent, or legal
+  authority. A disclaimer or signature cannot legalize an otherwise unlawful act.
 
 ## India-focused gate
 
@@ -58,7 +61,10 @@ The initial lab is assumed to be in India; verify that assumption per run.
   Trial License](https://eservices.dot.gov.in/experimental-and-technology-trial-license)
   process for non-radiating indoor and radiating trials. Also check the current
   [Telecommunications Act 2023](https://eservices.dot.gov.in/sites/default/files/circular-notifications/Telecommunications-Act-2023.pdf)
-  and implementing rules.
+  and implementing rules, including the July 2026
+  [Radio Equipment Possession Authorisation Rules](https://www.eservices.dot.gov.in/sites/default/files/circular-notifications/telecommunications-radio-equipment-possession-authorisation-rules-2026.pdf).
+  Determine whether an exemption applies to the exact equipment and activity;
+  possession/testing authorization and spectrum assignment are separate questions.
 - [ ] **Critical infrastructure and communications:** never probe notified
   protected systems or intercept messages/traffic without specific lawful
   authority. A personally owned radio or computer does not confer rights over

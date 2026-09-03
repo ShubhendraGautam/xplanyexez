@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import unittest
 import hashlib
+import zipfile
 from pathlib import Path
 
 from tools.build_zipapp import build
@@ -54,6 +55,8 @@ class ZipappTests(unittest.TestCase):
                 hashlib.sha256(second.read_bytes()).hexdigest(),
             )
             self.assertNotIn(b"__pycache__", first.read_bytes())
+            with zipfile.ZipFile(first) as archive:
+                self.assertIn("LICENSE", archive.namelist())
 
 
 if __name__ == "__main__":

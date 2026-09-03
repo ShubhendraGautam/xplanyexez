@@ -38,6 +38,8 @@ PYTHONPATH=src python3 -m hwprobe verify-evidence private-evidence/runs/RUN_ID.j
 PYTHONPATH=src python3 -m hwprobe qualify private-evidence/runs/RUN_ID.json --evidence-dir private-evidence
 PYTHONPATH=src python3 -m hwprobe handlers
 PYTHONPATH=src python3 -m hwprobe validate inventory.json
+PYTHONPATH=src python3 -m hwprobe fpga boards
+PYTHONPATH=src python3 -m hwprobe fpga discover --board tang-primer-25k-dock --pretty
 ```
 
 Running as root may expose more read-only attributes, but is not required. The
@@ -57,6 +59,32 @@ For physical test machines, build the dependency-free single-file scanner:
 python3 tools/build_zipapp.py --output dist/hwprobe.pyz
 ./dist/hwprobe.pyz handlers
 ```
+
+The zipapp includes the Apache-2.0 license.
+
+## Controlled P2 experiments
+
+P2 is a separate, fail-closed path. It cannot be enabled by adding `--force` to
+the passive scanner, and the project intentionally provides no generic raw-byte
+transport. Every hardware protocol adapter must be code-reviewed and must
+allowlist named commands whose serialized bytes are deterministic.
+
+```sh
+PYTHONPATH=src python3 -m hwprobe p2 disclaimer
+PYTHONPATH=src python3 -m hwprobe p2 adapters
+PYTHONPATH=src python3 -m hwprobe p2 init --output experiment.json
+# Complete the manifest and install/register its reviewed protocol adapter.
+PYTHONPATH=src python3 -m hwprobe p2 authorize experiment.json --output authorization.json
+PYTHONPATH=src python3 -m hwprobe p2 verify experiment.json authorization.json
+PYTHONPATH=src python3 -m hwprobe p2 run experiment.json authorization.json \
+  --evidence-dir private-evidence
+```
+
+Authorization is an interactive, passphrase-protected self-attestation by the
+declared hardware owner. The terminal UI shows the complete disclaimer and binds
+the signature to the exact manifest digest. It records consent and
+accountability; it does not independently prove identity, ownership,
+qualification, or legality. See the [P2 experiment contract](docs/p2-experiments.md).
 
 ## Design
 
@@ -85,6 +113,10 @@ Project planning and operating documents:
   privacy, and future offline decoder requirements.
 - [Platform validation](docs/platform-validation.md): repeatable qualification
   procedure and the five-physical-platform M1 matrix.
+- [P2 experiment contract](docs/p2-experiments.md): manifest, owner signature,
+  reviewed-adapter, evidence, and execution requirements.
+- [FPGA staged probing](docs/fpga.md): Primer 25K Dock profile, descriptor-only
+  discovery, and the hardware-validation gate for JTAG IDCODE probing.
 
 ## Multi-agent development
 

@@ -181,6 +181,10 @@ captures are retained before convenience decoders are applied.
   watchdog and no production data. **F2–F3**
 - [ ] Accelerator inventory: NPU, DSP, media, crypto, FPGA, DPU, and offload
   engines, including firmware and exposed queues. **F0–F3**
+- [x] Tang Primer 25K Dock board profile and descriptor-only USB debugger
+  discovery, with default serial redaction and no assumed VID/PID. **F0–F1**
+- [ ] Primer 25K allowlisted JTAG `read-idcode` P2 adapter; registration remains
+  blocked on real-device capture and hardware-in-the-loop fault tests. **F2**
 - [ ] Safe overclock, underclock, power-limit, and undervolt characterization
   where the platform explicitly exposes controls. **F2–F3**
 - [ ] FPGA/CPLD bitstream and partial-reconfiguration experiments on owned
@@ -526,6 +530,9 @@ accounts, networks, data, radio bands, or users in scope.
 
 ### M3 — controlled active experiments
 
+- [x] Fail-closed P2 manifest validation, exact owner self-attestation,
+  passphrase-protected manifest signature, adapter/command allowlist boundary,
+  request-digest verification, and pre-dispatch evidence commit.
 - [ ] Manifest/policy engine, resource locks, watchdog, independent recovery,
   before/after state proof, and blast-radius approval.
 - [ ] At least one reversible Level 2 experiment passes hardware-in-the-loop fault

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import stat
 import tempfile
 import zipapp
@@ -24,16 +25,20 @@ def build(output: Path) -> Path:
         return "__pycache__" not in path.parts and path.suffix not in {".pyc", ".pyo"}
 
     try:
-        zipapp.create_archive(
-            source,
-            target=temporary,
-            interpreter="/usr/bin/env python3",
-            main="hwprobe.cli:main",
-            compressed=True,
-            filter=include,
-        )
-        temporary.chmod(temporary.stat().st_mode | stat.S_IXUSR)
-        os.replace(temporary, output)
+        with tempfile.TemporaryDirectory(prefix=".hwprobe-build.", dir=output.parent) as staging_name:
+            staging = Path(staging_name)
+            shutil.copytree(source / "hwprobe", staging / "hwprobe")
+            shutil.copy2(repository / "LICENSE", staging / "LICENSE")
+            zipapp.create_archive(
+                staging,
+                target=temporary,
+                interpreter="/usr/bin/env python3",
+                main="hwprobe.cli:main",
+                compressed=True,
+                filter=include,
+            )
+            temporary.chmod(temporary.stat().st_mode | stat.S_IXUSR)
+            os.replace(temporary, output)
     finally:
         temporary.unlink(missing_ok=True)
     return output
